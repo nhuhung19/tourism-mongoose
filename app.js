@@ -4,12 +4,13 @@ const app = express()
 const mongoose = require("mongoose")
 const router = express.Router()
 const bodyParser = require("body-parser")
-const {login, auth, logout} = require("./src/controllers/authController")
+const {login, auth, logout, logoutAll} = require("./src/controllers/authController")
 const {createUser} = require("./src/controllers/userControllers")
 const {createProfile, updateProfile} = require("./src/controllers/profileController")
 const {createTour, readTour, readSingleTour, updateTour, deleteTour, readByCategory} = require("./src/controllers/tourController")
 const {createCategory, readCategory, updateCategory, deleteCategory } = require("./src/controllers/categoryController")
 const checkTour = require("./src/modules/checkTour")
+const checkReview = require("./src/modules/checkReview")
 const checkCategory = require("./src/modules/checkCategory")
 const {createReview, updateReview, readReviews, delelteReview, readSingleReview} = require("./src/controllers/reviewController")
 mongoose.connect(process.env.DB_LOCAL, {
@@ -36,6 +37,9 @@ router.route("/auth/login")
 
 router.route("/auth/logout")
 .get(auth, logout)
+
+router.route("/auth/logoutAll")
+.get(auth, logoutAll)
 
 router.route("/profile")
 .post(auth, createProfile)
@@ -64,9 +68,9 @@ router.route("/reviews")
 .get(auth,checkTour, readReviews)
 .post(auth, checkTour, createReview)
 router.route("/reviews/:rId")
-.get(auth, checkTour,readSingleReview)
-.put(auth, checkTour, updateReview)
-.delete(auth, checkTour, delelteReview)
+.get(auth, checkTour, checkReview, readSingleReview)
+.put(auth, checkTour, checkReview, updateReview)
+.delete(auth, checkTour, checkReview, delelteReview)
 
 
 app.listen(process.env.PORT, ()=> {

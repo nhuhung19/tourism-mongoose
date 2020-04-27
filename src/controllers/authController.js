@@ -2,8 +2,9 @@ const User = require("../models/user")
 const jwt = require('jsonwebtoken')
 
 exports.login = async function(req, res){
-    const {email, password} = req.body
     try{
+        const {email, password} = req.body
+        if(!email && !password) throw new Error("Email & password is required")
         const user = await User.loginWithCredentials(email, password)
         const jsonToken = await user.generateToken()
         return res.status(200).json({status: "ok", data: jsonToken})
@@ -40,5 +41,15 @@ exports.logout = async function(req, res){
     } catch (err){
         return res.status(400).json({status: "fail", error: err.message})
     }
-    
+}
+
+exports.logoutAll = async function (req, res){
+    try{
+        const user = req.user
+        user.tokens = []
+        await user.save()
+        return res.status(204).json({status: "success", data: null})
+    } catch (err){
+        return res.status(400).json({status: "fail", error: err.message})
+    }
 }
