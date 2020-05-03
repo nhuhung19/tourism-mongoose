@@ -66,7 +66,7 @@ exports.readByCategory = async function (req, res){
 
     try{
         const tour = await Category.findById(req.category._id).populate("tours")
-        console.log(tour)
+        // console.log(tour)
         return res.status(200).json({status: "ok", data: tour})
     }catch (err){
         // console.log(err)
