@@ -49,7 +49,7 @@ tourSchema.pre("save", async function (next) {
     if (!this.isModified("guides")) return next();
 
     const found = await User.find({ "_id": { $in: this.guides } }).select("_id");
-    console.log(found)
+    // console.log(found)
     if (found.length !== this.guides.length)
         throw new Error("guide(s) doesn't exist");
     next();

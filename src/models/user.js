@@ -56,10 +56,18 @@ userSchema.methods.toJSON = function (){
     return newObj
 }
 
-userSchema.pre("save", async function(next){
+userSchema.pre("save", async function(next){ // this is doc
 
     if(!this.isModified("password")) return next()
     this.password = await bcrypt.hash( this.password, saltRounds)
+        // Store hash in your password DB.);
+    next()
+})
+
+userSchema.pre("findOneAndUpdate", async function(next){ // "this" isn't doc, "this" is query
+    // console.log(this)
+    if(!this._update.password) return next()
+    this._update.password = await bcrypt.hash(this._update.password, saltRounds)
         // Store hash in your password DB.);
     next()
 })

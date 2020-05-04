@@ -4,15 +4,14 @@ const app = express()
 const mongoose = require("mongoose")
 const router = express.Router()
 const bodyParser = require("body-parser")
-const {login, auth, logout, logoutAll} = require("./src/controllers/authController")
-const {createUser, changePassword} = require("./src/controllers/userControllers")
-const {createProfile, updateProfile} = require("./src/controllers/profileController")
-const {createTour, readTour, readSingleTour, updateTour, deleteTour, readByCategory} = require("./src/controllers/tourController")
-const {createCategory, readCategory, updateCategory, deleteCategory } = require("./src/controllers/categoryController")
-const checkTour = require("./src/modules/checkTour")
-const checkReview = require("./src/modules/checkReview")
-const checkCategory = require("./src/modules/checkCategory")
-const {createReview, updateReview, readReviews, delelteReview, readSingleReview} = require("./src/controllers/reviewController")
+const tourRouter = require("./src/routers/tourRouter")
+const reviewRouter = require("./src/routers/reviewRouter")
+const userRouter = require("./src/routers/userRouter")
+const authRouter = require("./src/routers/authRouter")
+const categoryRouter = require("./src/routers/categoryRouter")
+const profileRouter = require("./src/routers/profileRouter")
+
+
 mongoose.connect(process.env.DB_LOCAL, {
     // some options to deal with deprecated warning, you don't have to worry about them.
     useCreateIndex: true,
@@ -29,52 +28,30 @@ app.get("/", (req, res) => {
     res.status(200).json({ status: "ok", data: [] })
 })
 
-router.route("/users")
-.post(createUser)
 
-router.route("/auth/login")
-.post(login)
+// user router
+router.use("/users", userRouter)
+// auth router
+router.use("/auth", authRouter)
+//tour Router
+router.use("/tours", tourRouter)
+// review Router
+router.use("/tours/:tId/reviews", reviewRouter)
+// category Router
+router.use("/categorys", categoryRouter)
+// profile Router
+router.use("/profile", profileRouter)
 
-router.route("/auth/logout")
-.get(auth, logout)
+const AppError = require("./src/utils/appError")
 
-router.route("/auth/logoutAll")
-.get(auth, logoutAll)
+function notFound(req, res, next) {
+    next(new AppError(404, "API NOT FOUND"))
+}
 
-router.route("/profile")
-.post(auth, createProfile)
-.put(auth, updateProfile)
-
-router.route("/profile/password")
-.put(auth, changePassword)
-
-router.route("/categorys")
-.post(auth, createCategory)
-.get(auth, readCategory)
-router.route("/categorys/:id")
-.put(auth, updateCategory)
-.delete(auth, deleteCategory)
-
-router.route("/tours")
-.get(auth, readTour)
-.post(auth, createTour)
-router.route("/tours/:id")
-.put(auth, updateTour)
-.delete(auth, deleteTour)
-router.route("/tours/:id")
-.get(auth, readSingleTour)
-
-router.route("/tours/categorys/:id")
-.get(auth, checkCategory, readByCategory)
-
-router.route("/reviews")
-.get(auth,checkTour, readReviews)
-.post(auth, checkTour, createReview)
-router.route("/reviews/:rId")
-.get(auth, checkTour, checkReview, readSingleReview)
-.put(auth, checkTour, checkReview, updateReview)
-.delete(auth, checkTour, checkReview, delelteReview)
-
+router.route("*").all(notFound)
+const errorHandler = require("./src/utils/errorHandler")
+//create a error handler that will capture all error
+app.use(errorHandler) // last middleware run
 
 app.listen(process.env.PORT, ()=> {
     console.log("App is running")
