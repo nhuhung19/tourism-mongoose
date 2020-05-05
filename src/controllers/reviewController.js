@@ -32,10 +32,10 @@ exports.readSingleReview = catchAsync(async function (req, res) {
 
 exports.createReview = catchAsync(async function (req, res) {
 
-    const review = await Review.findOneAndUpdate(
-        { user: req.user._id, tour: req.params.tId },
-        { ...req.body, user: req.user._id },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
+    const review = await Review.create(
+        // { user: req.user._id, tour: req.params.tId },
+        { ...req.body, tour: req.params.tId, user: req.user._id }
+        // { new: true, upsert: true, setDefaultsOnInsert: true }
     )
     return res.status(201).json({ status: "success", data: review })
 
